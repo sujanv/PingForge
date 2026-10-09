@@ -1,0 +1,28 @@
+# Binaries
+bin/
+/pingforge
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*.test
+
+# Output and reports
+*.out
+report.html
+report.csv
+coverage.html
+history.json
+
+# Go workspace
+go.work
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
