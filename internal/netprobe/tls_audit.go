@@ -161,5 +161,3 @@ func computeGrade(a *TLSSecurityAudit) string {
 	}
 	return "A"
 }
-
-// Updated for feat(tls-audit): add cipher suite analysis and certificate chain validation
