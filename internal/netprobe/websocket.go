@@ -154,3 +154,5 @@ func computeWebSocketAccept(key string) string {
 	h.Write([]byte(key + magic))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
+
+// Updated for feat(websocket): add ping-pong frame round-trip latency measurement
