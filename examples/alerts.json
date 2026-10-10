@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "latency_threshold_ms": 150.0,
+  "failure_threshold": 3,
+  "webhook_url": "https://hooks.slack.com/services/YOUR/TOKEN/HERE"
+}

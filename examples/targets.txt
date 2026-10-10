@@ -1,0 +1,16 @@
+# Target list for PingForge batch diagnostic probes
+# Format: host, host:port, URL, or CIDR
+
+# Public DNS Resolvers
+1.1.1.1:53
+8.8.8.8:53
+9.9.9.9:53
+
+# Web Endpoints
+https://www.google.com
+https://github.com
+https://cloudflare.com
+
+# Core Services
+github.com:443
+cloudflare.com:80

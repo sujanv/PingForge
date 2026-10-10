@@ -1,0 +1,54 @@
+timeout: 5s
+concurrency: 15
+output_format: "table"
+verbose: false
+no_color: false
+
+storage:
+  enabled: true
+  file_path: "~/.pingforge/history.json"
+  retention_days: 30
+  max_records: 50000
+
+tcp:
+  keep_alive: 30s
+  retries: 1
+  read_banner: false
+  tls: false
+  no_delay: true
+
+dns:
+  resolvers:
+    - "system"
+    - "1.1.1.1:53"
+    - "8.8.8.8:53"
+    - "9.9.9.9:53"
+  timeout: 3s
+  record_types:
+    - "A"
+    - "AAAA"
+    - "CNAME"
+    - "MX"
+    - "TXT"
+    - "NS"
+
+ping:
+  count: 5
+  interval: 200ms
+  port: 80
+
+health:
+  follow_redirects: true
+  max_redirects: 5
+  expected_status:
+    - 200
+    - 201
+    - 204
+  user_agent: "PingForge/1.0 (+https://github.com/sujanv/PingForge)"
+  latency_budget: 1500ms
+
+alerts:
+  enabled: false
+  latency_threshold_ms: 250.0
+  failure_threshold: 3
+  webhook_url: "https://hooks.slack.com/services/EXAMPLE/WEBHOOK"
