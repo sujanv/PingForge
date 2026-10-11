@@ -133,3 +133,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: feat(cli): add geo subcommand 
 // build: feat(bgp): add BGP routing tab
 // build: feat(bgp): parse upstream tran
+// build: feat(cli): add bgp subcommand 
