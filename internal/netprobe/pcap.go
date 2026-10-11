@@ -136,3 +136,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: feat(cli): add bgp subcommand 
 // build: feat(arp): implement cross-pla
 // build: feat(arp): add MAC address val
+// build: feat(cli): add arp subcommand 
