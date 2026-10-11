@@ -91,6 +91,14 @@ func init() {
 	RootCmd.AddCommand(reportCmd)
 	RootCmd.AddCommand(daemonCmd)
 	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(dohCmd)
+	RootCmd.AddCommand(dotCmd)
+	RootCmd.AddCommand(tlsAuditCmd)
+	RootCmd.AddCommand(wsCmd)
+	RootCmd.AddCommand(udpCmd)
+	RootCmd.AddCommand(mtuCmd)
+	RootCmd.AddCommand(throughputCmd)
+	RootCmd.AddCommand(liveCmd)
 }
 
 // Execute runs the root CLI command.
@@ -108,6 +116,10 @@ func formatOutput(data interface{}) error {
 		return output.NewJSONFormatter(true).Format(os.Stdout, data)
 	case "yaml":
 		return output.NewYAMLFormatter().Format(os.Stdout, data)
+	case "markdown":
+		return output.NewMarkdownFormatter().Format(os.Stdout, data)
+	case "ndjson":
+		return output.NewNDJSONFormatter().Format(os.Stdout, data)
 	default:
 		return output.NewTableFormatter(globalConfig.NoColor).Format(os.Stdout, data)
 	}
