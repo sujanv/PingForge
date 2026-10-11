@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/sujanv/pingforge/internal/core"
+	"github.com/sujanv/pingforge/internal/netprobe"
 )
 
 // TableFormatter renders diagnostic results as attractive ANSI tables.
@@ -39,6 +40,20 @@ func (t *TableFormatter) Format(w io.Writer, data interface{}) error {
 		t.renderTraceResult(w, v)
 	case []core.HistorySummary:
 		t.renderHistorySummaries(w, v)
+	case *netprobe.DoHResult:
+		t.renderDoHResult(w, v)
+	case *netprobe.DoTResult:
+		t.renderDoTResult(w, v)
+	case *netprobe.TLSSecurityAudit:
+		t.renderTLSAudit(w, v)
+	case *netprobe.WebSocketResult:
+		t.renderWebSocketResult(w, v)
+	case *netprobe.UDPResult:
+		t.renderUDPResult(w, v)
+	case *netprobe.MTUResult:
+		t.renderMTUResult(w, v)
+	case *netprobe.ThroughputResult:
+		t.renderThroughputResult(w, v)
 	default:
 		fmt.Fprintf(w, "%+v\n", data)
 	}
@@ -254,4 +269,142 @@ func truncate(s string, max int) string {
 		return s
 	}
 	return s[:max-3] + "..."
+}
+
+func (t *TableFormatter) renderDoHResult(w io.Writer, d *netprobe.DoHResult) {
+	fmt.Fprintf(w, "\n── %s DNS-over-HTTPS [%s -> %s] ──\n\n", color.CyanString("PINGFORGE DoH"), d.Domain, d.Provider)
+	fmt.Fprintf(w, "  Provider   : %s (%s)\n", d.Provider, d.EndpointURL)
+	fmt.Fprintf(w, "  Query Time : %.2f ms (HTTP %d)\n", d.TotalDurationMs, d.HTTPStatusCode)
+	fmt.Fprintf(w, "  Phases     : DNS: %.2fms | Connect: %.2fms | TLS: %.2fms | TTFB: %.2fms\n\n",
+		d.DNSLookupMs, d.TCPConnectMs, d.TLSHandshakeMs, d.TTFBMs)
+
+	tw := tabwriter.NewWriter(w, 0, 0, 3, ' ', 0)
+	fmt.Fprintln(tw, "RECORD TYPE\tVALUE")
+	fmt.Fprintln(tw, "-----------\t-----")
+	for rType, vals := range d.Records {
+		for _, val := range vals {
+			fmt.Fprintf(tw, "%s\t%s\n", rType, val)
+		}
+	}
+	_ = tw.Flush()
+	fmt.Fprintln(w)
+}
+
+func (t *TableFormatter) renderDoTResult(w io.Writer, d *netprobe.DoTResult) {
+	fmt.Fprintf(w, "\n── %s DNS-over-TLS [%s -> %s] ──\n\n", color.CyanString("PINGFORGE DoT"), d.Domain, d.Resolver)
+	fmt.Fprintf(w, "  Resolver     : %s (SNI: %s)\n", d.Resolver, d.ServerName)
+	fmt.Fprintf(w, "  Security     : %s (%s)\n", d.TLSVersion, d.CipherSuite)
+	fmt.Fprintf(w, "  Connect Time : %.2f ms | Handshake: %.2f ms | Wire Query: %.2f ms\n",
+		d.TCPConnectMs, d.TLSHandshakeMs, d.QueryLatencyMs)
+	fmt.Fprintf(w, "  Answers      : %d records returned\n\n", d.AnswersCount)
+}
+
+func (t *TableFormatter) renderTLSAudit(w io.Writer, a *netprobe.TLSSecurityAudit) {
+	gradeColor := color.GreenString
+	if a.Grade == "B" {
+		gradeColor = color.YellowString
+	} else if a.Grade == "C" || a.Grade == "F" {
+		gradeColor = color.RedString
+	}
+
+	fmt.Fprintf(w, "\n── %s SSL/TLS Security Audit [%s:%d] ──\n\n", color.CyanString("PINGFORGE AUDIT"), a.Host, a.Port)
+	fmt.Fprintf(w, "  Overall Security Grade : %s\n", gradeColor(" %s ", a.Grade))
+	fmt.Fprintf(w, "  Selected TLS Version   : %s\n", a.SelectedVersion)
+	fmt.Fprintf(w, "  Selected Cipher Suite  : %s\n", a.SelectedCipher)
+	if a.ALPNNegotiated != "" {
+		fmt.Fprintf(w, "  ALPN Protocol          : %s\n", a.ALPNNegotiated)
+	}
+
+	fmt.Fprintf(w, "\n  Protocol Support:\n")
+	for proto, supported := range a.SupportedProtocols {
+		st := color.RedString("✘ No")
+		if supported {
+			st = color.GreenString("✔ Yes")
+		}
+		fmt.Fprintf(w, "    %-10s : %s\n", proto, st)
+	}
+
+	if len(a.CertChain) > 0 {
+		fmt.Fprintf(w, "\n  Certificate Chain:\n")
+		tw := tabwriter.NewWriter(w, 0, 0, 3, ' ', 0)
+		fmt.Fprintln(tw, "    SUBJECT\tISSUER\tEXPIRES IN\tALGORITHM")
+		fmt.Fprintln(tw, "    -------\t------\t----------\t---------")
+		for _, c := range a.CertChain {
+			fmt.Fprintf(tw, "    %s\t%s\t%d days\t%s\n",
+				truncate(c.Subject, 30), truncate(c.Issuer, 30), c.DaysRemaining, c.SignatureAlgo)
+		}
+		_ = tw.Flush()
+	}
+
+	if len(a.Vulnerabilities) > 0 {
+		fmt.Fprintf(w, "\n  %s:\n", color.RedString("Vulnerabilities Detected"))
+		for _, v := range a.Vulnerabilities {
+			fmt.Fprintf(w, "    ✘ %s\n", v)
+		}
+	}
+	if len(a.Warnings) > 0 {
+		fmt.Fprintf(w, "\n  %s:\n", color.YellowString("Warnings"))
+		for _, warn := range a.Warnings {
+			fmt.Fprintf(w, "    ⚠ %s\n", warn)
+		}
+	}
+	fmt.Fprintln(w)
+}
+
+func (t *TableFormatter) renderWebSocketResult(w io.Writer, ws *netprobe.WebSocketResult) {
+	st := color.GreenString("✔ CONNECTED")
+	if !ws.Connected {
+		st = color.RedString("✘ FAILED")
+	}
+
+	fmt.Fprintf(w, "\n── %s WebSocket Probe [%s] ──\n\n", color.CyanString("PINGFORGE WS"), ws.URL)
+	fmt.Fprintf(w, "  Status         : %s\n", st)
+	fmt.Fprintf(w, "  Handshake Time : %.2f ms\n", ws.HandshakeMs)
+	fmt.Fprintf(w, "  Ping/Pong RTT  : %.2f ms\n", ws.PingPongRTTMs)
+	fmt.Fprintf(w, "  Total Duration : %.2f ms\n", ws.TotalDurationMs)
+	if ws.SecWebSocketProt != "" {
+		fmt.Fprintf(w, "  Subprotocol    : %s\n", ws.SecWebSocketProt)
+	}
+	fmt.Fprintln(w)
+}
+
+func (t *TableFormatter) renderUDPResult(w io.Writer, u *netprobe.UDPResult) {
+	fmt.Fprintf(w, "\n── %s UDP Probe [%s:%d] ──\n\n", color.CyanString("PINGFORGE UDP"), u.Target, u.Port)
+	fmt.Fprintf(w, "  Reachability   : %s\n", color.GreenString("✔ REACHABLE"))
+	fmt.Fprintf(w, "  Response Time  : %.2f ms\n", u.LatencyMs)
+	fmt.Fprintf(w, "  Bytes Sent/Recv: %d / %d\n", u.BytesSent, u.BytesRecv)
+	fmt.Fprintf(w, "  Summary        : %s\n", u.Message)
+	fmt.Fprintln(w)
+}
+
+func (t *TableFormatter) renderMTUResult(w io.Writer, m *netprobe.MTUResult) {
+	fmt.Fprintf(w, "\n── %s Path MTU Discovery [%s:%d] ──\n\n", color.CyanString("PINGFORGE MTU"), m.Host, m.Port)
+	fmt.Fprintf(w, "  Optimal MTU  : %s bytes\n", color.GreenString("%d", m.OptimalMTU))
+	fmt.Fprintf(w, "  Estimated MSS: %d bytes (MTU - 40 bytes IP/TCP header)\n\n", m.EstimatedMSS)
+
+	tw := tabwriter.NewWriter(w, 0, 0, 3, ' ', 0)
+	fmt.Fprintln(tw, "PAYLOAD SIZE\tRESULT\tLATENCY")
+	fmt.Fprintln(tw, "------------\t------\t-------")
+	for _, sz := range m.TestedSizes {
+		resStr := color.RedString("FAILED")
+		latStr := "-"
+		if sz.Success {
+			resStr = color.GreenString("SUCCESS")
+			latStr = fmt.Sprintf("%.2f ms", sz.LatencyMs)
+		}
+		fmt.Fprintf(tw, "%d bytes\t%s\t%s\n", sz.Size, resStr, latStr)
+	}
+	_ = tw.Flush()
+	fmt.Fprintln(w)
+}
+
+func (t *TableFormatter) renderThroughputResult(w io.Writer, tp *netprobe.ThroughputResult) {
+	fmt.Fprintf(w, "\n── %s Throughput & Bandwidth [%s] ──\n\n", color.CyanString("PINGFORGE SPEED"), tp.Target)
+	fmt.Fprintf(w, "  Transferred  : %.2f MB (%d bytes)\n", float64(tp.BytesTransferred)/(1024*1024), tp.BytesTransferred)
+	fmt.Fprintf(w, "  Duration     : %.2f seconds\n", tp.DurationSeconds)
+	fmt.Fprintf(w, "  Throughput   : %s  |  %s\n",
+		color.GreenString("%.2f MB/s", tp.ThroughputMBps),
+		color.CyanString("%.2f Mbps", tp.ThroughputMbps),
+	)
+	fmt.Fprintln(w)
 }
