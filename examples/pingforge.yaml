@@ -52,3 +52,5 @@ alerts:
   latency_threshold_ms: 250.0
   failure_threshold: 3
   webhook_url: "https://hooks.slack.com/services/EXAMPLE/WEBHOOK"
+
+// Updated for chore(examples): update configuration file with DoH and alert channel presets
