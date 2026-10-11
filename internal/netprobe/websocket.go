@@ -111,7 +111,7 @@ func ProbeWebSocket(ctx context.Context, rawURL string, subprotocols []string, t
 	}
 
 	// Verify Sec-WebSocket-Accept
-	expectedAccept := computeWebSocketAccept(secKey)
+	expectedAccept := ComputeWebSocketAccept(secKey)
 	actualAccept := resp.Header.Get("Sec-WebSocket-Accept")
 	if actualAccept != expectedAccept {
 		res.Error = fmt.Sprintf("invalid Sec-WebSocket-Accept key (expected %s, got %s)", expectedAccept, actualAccept)
@@ -138,8 +138,9 @@ func ProbeWebSocket(ctx context.Context, rawURL string, subprotocols []string, t
 		return res
 	}
 
-	// Read frame header for Pong (0x8A)
+	// Read frame header for Pong (0x8A) with a short read window (200ms)
 	header := make([]byte, 2)
+	_ = conn.SetReadDeadline(time.Now().Add(200 * time.Millisecond))
 	if _, err := reader.Read(header); err == nil {
 		res.PingPongRTTMs = float64(time.Since(pingStart).Microseconds()) / 1000.0
 	}
@@ -148,7 +149,8 @@ func ProbeWebSocket(ctx context.Context, rawURL string, subprotocols []string, t
 	return res
 }
 
-func computeWebSocketAccept(key string) string {
+// ComputeWebSocketAccept generates RFC 6455 Sec-WebSocket-Accept hash.
+func ComputeWebSocketAccept(key string) string {
 	const magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 	h := sha1.New()
 	h.Write([]byte(key + magic))

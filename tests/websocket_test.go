@@ -14,9 +14,11 @@ import (
 func TestProbeWebSocketMock(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Upgrade") == "websocket" {
+			key := r.Header.Get("Sec-WebSocket-Key")
+			accept := netprobe.ComputeWebSocketAccept(key)
 			w.Header().Set("Upgrade", "websocket")
 			w.Header().Set("Connection", "Upgrade")
-			w.Header().Set("Sec-WebSocket-Accept", "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=")
+			w.Header().Set("Sec-WebSocket-Accept", accept)
 			w.WriteHeader(http.StatusSwitchingProtocols)
 		}
 	}))

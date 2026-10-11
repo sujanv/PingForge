@@ -48,14 +48,21 @@ func TestProbeTCPSuccess(t *testing.T) {
 }
 
 func TestProbeTCPTimeout(t *testing.T) {
+	// Bind and immediately close a listener to get an actively closed port
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to listen: %v", err)
+	}
+	port := l.Addr().(*net.TCPAddr).Port
+	_ = l.Close()
+
 	cfg := config.TCPConfig{}
 	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	defer cancel()
 
-	// Use an unassigned port or TEST-NET IP to ensure timeout or connection refusal
-	result := netprobe.ProbeTCP(ctx, "192.0.2.1", 81, cfg, 150*time.Millisecond)
+	result := netprobe.ProbeTCP(ctx, "127.0.0.1", port, cfg, 100*time.Millisecond)
 
 	if result.Status != core.StatusDown {
-		t.Fatalf("expected status DOWN on timeout/unreachable, got %v", result.Status)
+		t.Fatalf("expected status DOWN on closed port, got %v", result.Status)
 	}
 }
