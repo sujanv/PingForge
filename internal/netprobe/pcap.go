@@ -130,3 +130,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: feat(cli): introduce pcap subc
 // build: feat(geo): add IP Geolocation 
 // build: feat(geo): integrate Autonomou
+// build: feat(cli): add geo subcommand 
