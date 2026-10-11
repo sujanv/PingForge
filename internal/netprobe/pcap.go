@@ -142,3 +142,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: feat(cli): add http2 subcomman
 // build: feat(dnssec): add DNSSEC chain
 // build: feat(dnssec): inspect RRSIG, D
+// build: feat(cli): add dnssec subcomma
