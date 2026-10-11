@@ -138,3 +138,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: feat(arp): add MAC address val
 // build: feat(cli): add arp subcommand 
 // build: feat(http2): implement RFC 754
+// build: feat(http2): add stream header
