@@ -132,3 +132,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: feat(geo): integrate Autonomou
 // build: feat(cli): add geo subcommand 
 // build: feat(bgp): add BGP routing tab
+// build: feat(bgp): parse upstream tran
