@@ -140,3 +140,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: feat(http2): implement RFC 754
 // build: feat(http2): add stream header
 // build: feat(cli): add http2 subcomman
+// build: feat(dnssec): add DNSSEC chain
