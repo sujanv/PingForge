@@ -126,3 +126,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 }
 
 // build: feat(pcap): implement Wireshar
+// build: feat(pcap): add synthetic IPv4
