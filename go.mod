@@ -1,6 +1,6 @@
 module github.com/sujanv/pingforge
 
-go 1.22.0
+go 1.25.0
 
 require (
 	github.com/fatih/color v1.19.0
