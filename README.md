@@ -1,6 +1,6 @@
 # ⚡ PingForge
 
-> **Advanced Network Diagnostics Toolkit** for high-throughput TCP connectivity checks, multi-resolver DNS lookups, microsecond latency & RFC 3550 jitter measurement, HTTP/HTTPS endpoint health auditing, and historical SLA reports.
+> **Advanced Network Diagnostics & Telemetry Toolkit** — High-throughput TCP/UDP connectivity analysis, multi-resolver DNS/DoH/DoT auditing, microsecond latency & RFC 3550 jitter measurement, SSL/TLS security scorecards, WebSocket testing, Path MTU discovery, interactive live TUI dashboards, and historical SLA reports.
 
 [![CI Status](https://github.com/sujanv/PingForge/actions/workflows/ci.yml/badge.svg)](https://github.com/sujanv/PingForge/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sujanv/pingforge)](https://goreportcard.com/report/github.com/sujanv/pingforge)
@@ -11,62 +11,75 @@
 
 ## 🚀 Overview
 
-**PingForge** is an enterprise-grade CLI network engineering toolkit designed for DevOps, SREs, and network engineers. Engineered in Go with modern socket programming, timeout-bounded contexts, worker pools, and zero-allocation statistical calculators.
+**PingForge** is an enterprise-grade CLI network engineering toolkit designed for SREs, DevOps engineers, and network architects. Engineered in Go with modern socket programming, timeout-bounded contexts, worker pools, and zero-allocation statistical calculators.
 
-### ✨ Key Capabilities
+### ✨ Comprehensive Feature Matrix
 
-- **🔌 TCP Handshake & Socket Diagnostics**: High-precision connect latency, TCP keep-alive, TCP_NODELAY tuning, TLS handshake verification, certificate expiration auditing, and banner grabbing.
-- **🌐 Multi-Resolver DNS Auditing**: Query system and public DNS resolvers (Cloudflare `1.1.1.1`, Google `8.8.8.8`, Quad9 `9.9.9.9`, OpenDNS) in parallel across `A`, `AAAA`, `CNAME`, `MX`, `TXT`, `NS`, and `SRV` records, with global propagation checking.
-- **⏱️ Latency & RFC 3550 Jitter Statistics**: Microsecond round-trip time (RTT) measurements, packet loss tracking, standard deviation, RFC 3550 interarrival jitter, and percentiles (`P50`, `P90`, `P95`, `P99`).
-- **🩺 HTTP/HTTPS Health Checks**: Granular timing breakdown (DNS lookup, TCP connect, TLS handshake, TTFB, total), regex body assertions, HTTP status validation, and latency budgets.
-- **⚡ Concurrent Worker Pool & CIDR Probing**: Batch scanning across target lists or IPv4 CIDR blocks (`192.168.1.0/28`) with worker pools, rate limiting, and graceful cancellation.
-- **📊 Historical Latency SLA Reports**: Persistent JSON time-series store, terminal ASCII sparklines (` ▂▃▄▅▆▇█`) and distribution histograms, CSV export, and standalone responsive HTML dashboards.
-- **📡 Background Monitoring Daemon & Prometheus Exporter**: Continuous background probing daemon exposing native `/metrics` (Prometheus) and `/healthz` endpoints.
+| Feature | Subcommand | Key Capabilities |
+| :--- | :--- | :--- |
+| **TCP Diagnostics** | `pingforge tcp` | Handshake latency, Keep-Alive, TCP_NODELAY, TLS negotiation, banner grabbing |
+| **DNS Resolution** | `pingforge dns` | Multi-resolver lookups (Cloudflare, Google, Quad9, OpenDNS), A/AAAA/MX/TXT/NS/CNAME/SRV, propagation checks |
+| **DNS-over-HTTPS** | `pingforge doh` | RFC 8484 wire format & JSON API, query latency phase timing (DNS, TCP, TLS, TTFB) |
+| **DNS-over-TLS** | `pingforge dot` | RFC 7858 on port 853, TLS handshake timing, wire protocol parsing |
+| **Latency & Jitter** | `pingforge ping` | Round-trip time (RTT), packet loss, sample standard deviation, **RFC 3550 Jitter**, P50/P90/P95/P99 percentiles |
+| **Live TUI Monitor** | `pingforge live` | Full-screen real-time terminal dashboard, rolling packet loss gauge, live ASCII sparklines |
+| **TLS Security Audit** | `pingforge tls-audit` | Multi-version inspection (TLS 1.0-1.3), cipher suite audit, cert chain hierarchy, ALPN, security grade (A+ to F) |
+| **HTTP/HTTPS Health** | `pingforge health` | Granular phase timing via `httptrace`, regex assertions, HTTP status validation, latency budgets |
+| **WebSocket Probe** | `pingforge ws` | RFC 6455 HTTP upgrade handshake timing, Ping/Pong frame RTT, subprotocol validation |
+| **UDP Reachability** | `pingforge udp` | Custom payload transmission, response latency, port unreachable handling |
+| **Path MTU Discovery** | `pingforge mtu` | Socket buffer threshold scanning (576 to 9000 bytes), estimated TCP MSS detection |
+| **Throughput Speed** | `pingforge throughput` | Sustained TCP streaming & HTTP download speed measurement in MB/s and Mbps |
+| **Port Scanner** | `pingforge scan` | High-concurrency worker pool port scanner, service detection, banner grabbing |
+| **Route Tracer** | `pingforge trace` | Hop-by-hop latency and route inspection |
+| **Batch Probing** | `pingforge batch` | Parallel multi-target scanning via files (`-f targets.txt`) or IPv4 CIDR blocks (`--cidr 192.168.1.0/28`) |
+| **Historical Reports** | `pingforge report` | Persistent time-series storage, SLA uptime %, ASCII sparklines, CSV/JSON/HTML dashboards |
+| **Anomaly Detection** | `pingforge report` | Z-score statistical outlier detection ($z \ge 2.5$) and latency spike alerting |
+| **Monitoring Daemon** | `pingforge daemon` | Background monitoring loop, native Prometheus `/metrics` exporter, and `/healthz` endpoints |
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-                                 ┌──────────────────────────────────┐
-                                 │       PingForge CLI Engine       │
-                                 │         (Cobra + Viper)          │
-                                 └──────────────┬───────────────────┘
-                                                │
-                 ┌──────────────────────────────┼──────────────────────────────┐
-                 ▼                              ▼                              ▼
-      ┌────────────────────┐         ┌────────────────────┐         ┌────────────────────┐
-      │   Worker Pool      │         │   Storage Engine   │         │  Output Formatter  │
-      │  (Channels, sync,  │         │(Append JSON Ledger,│         │(Table, ANSI Color, │
-      │   Rate Limiting)   │         │ Uptime SLA, Trends)│         │ JSON, YAML, HTML)  │
-      └──────────┬─────────┘         └──────────┬─────────┘         └──────────┬─────────┘
-                 │                              │                              │
-     ┌───────────┴───────────┐                  │                              │
-     ▼                       ▼                  │                              │
-┌──────────────┐      ┌──────────────┐          │                              │
-│  net.Dialer  │      │ net.Resolver │          ▼                              ▼
-│  TCP/TLS/RTT │      │ DNS/Records  │   ┌───────────────┐              ┌───────────────┐
-└──────────────┘      └──────────────┘   │ HTML / ASCII  │              │  /metrics     │
-     ▲                       ▲           │ Latency Graph │              │ Prometheus    │
-     │                       │           └───────────────┘              └───────────────┘
-     └───────────┬───────────┘
-                 │
-      ┌──────────┴──────────┐
-      │  httptrace / HTTP   │
-      │  DNS, TCP, TLS, TTFB│
-      └─────────────────────┘
+                                  ┌─────────────────────────────────────┐
+                                  │        PingForge CLI Engine         │
+                                  │           (Cobra + Viper)           │
+                                  └──────────────────┬──────────────────┘
+                                                     │
+               ┌─────────────────────────────────────┼─────────────────────────────────────┐
+               ▼                                     ▼                                     ▼
+     ┌────────────────────┐                ┌────────────────────┐                ┌────────────────────┐
+     │   Worker Pool      │                │   Storage Engine   │                │  Output Formatter  │
+     │  (Channels, sync,  │                │(Append JSON Ledger,│                │(ANSI Tables, JSON, │
+     │   Rate Limiting)   │                │ SLA, Z-Score Anom) │                │ YAML, NDJSON, GFM) │
+     └─────────┬──────────┘                └─────────┬──────────┘                └─────────┬──────────┘
+               │                                     │                                     │
+   ┌───────────┴───────────┐                         │                                     │
+   ▼                       ▼                         │                                     │
+┌──────────────┐    ┌──────────────┐                 ▼                                     ▼
+│  net.Dialer  │    │ DoH / DoT /  │          ┌───────────────┐                     ┌───────────────┐
+│ TCP/UDP/Ping │    │ DNS Resolver │          │ HTML / Live   │                     │  /metrics     │
+│  MTU / Speed │    │ 53 & 853     │          │ TUI Dashboard │                     │ Prometheus    │
+└──────────────┘    └──────────────┘          └───────────────┘                     └───────────────┘
+   ▲                       ▲
+   │                       │
+   └───────────┬───────────┘
+               │
+    ┌──────────┴──────────┐
+    │  TLS & WebSockets   │
+    │  Handshake, Ciphers,│
+    │  Ping/Pong Frames   │
+    └─────────────────────┘
 ```
 
 ---
 
 ## 📦 Installation
 
-### From Source
-```bash
-go install github.com/sujanv/pingforge/cmd/pingforge@latest
-```
+### Pre-requisites
+- Go 1.22 or higher (`go version`)
 
-### Build Locally
+### Build from Source
 ```bash
 git clone https://github.com/sujanv/PingForge.git
 cd PingForge
@@ -74,71 +87,132 @@ make build
 ./bin/pingforge --help
 ```
 
+### Install Globally
+```bash
+make install
+# or
+go install github.com/sujanv/pingforge/cmd/pingforge@latest
+```
+
 ---
 
-## 🛠️ Usage & Commands
+## 🛠️ Detailed CLI Usage & Command Reference
 
-### 1. TCP Connectivity & TLS Handshake
+### 1. TCP Connectivity & Socket Tuning (`pingforge tcp`)
 ```bash
-# Basic TCP connection check
+# Basic TCP handshake check
 pingforge tcp 1.1.1.1:443
 
-# TCP check with TLS negotiation and certificate inspection
+# Handshake with TLS certificate inspection
 pingforge tcp google.com:443 --tls
 
-# Grab service banner (e.g. SSH, Redis, FTP)
+# Grab service banner (e.g. SSH, FTP, Redis)
 pingforge tcp github.com:22 --banner
 ```
 
-### 2. DNS Queries & Global Propagation
+### 2. DNS-over-HTTPS (DoH) Queries (`pingforge doh`)
+Query encrypted DNS-over-HTTPS providers with granular phase timing (DNS, TCP, TLS, TTFB):
 ```bash
-# Query system and public resolvers
-pingforge dns google.com
+# Query via Cloudflare (default)
+pingforge doh google.com
 
-# Query specific resolver and record types
-pingforge dns github.com -r 1.1.1.1:53 --type A,AAAA,MX,TXT
+# Query via Google DoH with MX records
+pingforge doh github.com --provider google --type MX
 
-# Check global DNS propagation across worldwide resolvers
-pingforge dns cloudflare.com --propagation
+# Query via Quad9 or AdGuard
+pingforge doh wikipedia.org --provider quad9 --type AAAA
 ```
 
-### 3. Latency & RFC 3550 Jitter Measurement
+### 3. DNS-over-TLS (DoT) Queries (`pingforge dot`)
+Query RFC 7858 DNS-over-TLS on port 853:
 ```bash
-# Ping target with 5 probes
-pingforge ping 8.8.8.8 -c 5
+# Query Cloudflare DoT (1.1.1.1:853)
+pingforge dot google.com
+
+# Query Quad9 DoT (9.9.9.9:853)
+pingforge dot cloudflare.com --resolver 9.9.9.9:853
+```
+
+### 4. SSL/TLS Security Audit (`pingforge tls-audit`)
+Performs a comprehensive security evaluation, checking for deprecated protocol versions (TLS 1.0, 1.1), certificate chains, ALPN negotiation, and security scorecard:
+```bash
+# Audit TLS configuration on port 443
+pingforge tls-audit google.com:443
+
+# Output audit as machine-readable JSON
+pingforge tls-audit github.com:443 --json
+```
+
+### 5. Latency, Jitter & Percentiles (`pingforge ping`)
+Rapid consecutive connection probes with statistical analysis:
+```bash
+# 5 consecutive probes to Google DNS
+pingforge ping 8.8.8.8 -p 53 -c 5
 
 # High-frequency jitter & percentile probe
-pingforge ping 1.1.1.1 -c 10 -i 100ms -p 443
+pingforge ping 1.1.1.1 -p 443 -c 10 -i 100ms
 ```
 
-### 4. HTTP/HTTPS Endpoint Health Check
+### 6. Live Interactive Terminal Monitor (`pingforge live`)
+Full-screen refreshing terminal dashboard with real-time rolling sparkline latency graph:
 ```bash
-# Basic health check
-pingforge health https://httpbin.org/status/200
-
-# Health check with status validation, body regex match, and latency budget
-pingforge health https://httpbin.org/json --status 200 --match '"slideshow"' --budget 500ms
+# Live monitor 1.1.1.1 every 500ms
+pingforge live 1.1.1.1:443 -i 500ms
 ```
 
-### 5. Concurrent Port Scanner
+### 7. WebSocket Handshake & Ping-Pong RTT (`pingforge ws`)
+Validates RFC 6455 WebSocket connectivity:
 ```bash
-# Fast port scan for common services
+# Test WebSocket endpoint
+pingforge ws wss://echo.websocket.events
+
+# Test with custom subprotocols
+pingforge ws wss://echo.websocket.events --subprotocol chat,superchat
+```
+
+### 8. UDP Reachability Probe (`pingforge udp`)
+Sends UDP probe packets with custom payloads:
+```bash
+# Send UDP probe to DNS port
+pingforge udp 8.8.8.8:53 --payload "HELLO-DNS"
+```
+
+### 9. Path MTU Discovery (`pingforge mtu`)
+Discovers optimal packet transmission sizes without fragmentation:
+```bash
+# Probe path MTU
+pingforge mtu 1.1.1.1
+```
+
+### 10. Throughput & Download Speed (`pingforge throughput`)
+Measures sustained download bandwidth:
+```bash
+# Benchmark throughput over 3 seconds
+pingforge throughput https://www.google.com -d 3s
+```
+
+### 11. Concurrent Port Scanner (`pingforge scan`)
+Fast multi-threaded port scanner with service identification:
+```bash
+# Scan default common ports
 pingforge scan 127.0.0.1
 
 # Scan custom port range with banner grabbing
 pingforge scan 127.0.0.1 -p 80,443,8000-8080 --banner
 ```
 
-### 6. Batch Probing & CIDR Expansion
+### 12. Batch Probing & CIDR Expansion (`pingforge batch`)
+Concurrent diagnostics across targets or entire subnets:
 ```bash
-# Probe targets from file in parallel
+# Batch probe targets from text file
 pingforge batch -f examples/targets.txt --type TCP
 
-# Scan CIDR subnet concurrently
+# Scan IPv4 CIDR subnet in parallel
 pingforge batch --cidr 192.168.1.0/28 --type TCP
 ```
 
-### 7. Historical SLA & Latency Reports
+### 13. Historical SLA Reports & Anomaly Detection (`pingforge report`)
+Generate comprehensive uptime and latency SLA reports:
 ```bash
 # Terminal report with ASCII sparklines
 pingforge report --since 24h
@@ -146,18 +220,21 @@ pingforge report --since 24h
 # Export interactive standalone HTML report
 pingforge report --format html --out report.html
 
-# Export to CSV or JSON
+# Export as CSV or JSON
 pingforge report --format csv --out report.csv
-pingforge report --format json
+pingforge report --format json --out report.json
 ```
 
-### 8. Prometheus Daemon Mode
+### 14. Prometheus Monitoring Daemon (`pingforge daemon`)
+Continuous background probing with native metrics exposition:
 ```bash
-# Launch background monitoring daemon
+# Run daemon polling every 15 seconds
 pingforge daemon -l :9090 -i 15s -f examples/targets.txt
-# Metrics available at: http://localhost:9090/metrics
-# Health status at: http://localhost:9090/healthz
 ```
+Endpoints exposed:
+- `http://localhost:9090/metrics` — Prometheus metrics (`pingforge_probe_duration_seconds`, `pingforge_probe_success`, `pingforge_uptime_ratio`)
+- `http://localhost:9090/healthz` — Liveness health probe
+- `http://localhost:9090/api/summary` — JSON historical summary
 
 ---
 
@@ -171,18 +248,24 @@ pingforge tcp 1.1.1.1:443 --json
 
 # YAML output
 pingforge health https://github.com --yaml
+
+# Newline-Delimited JSON (NDJSON)
+pingforge batch -f examples/targets.txt --ndjson
+
+# GitHub Flavored Markdown Table
+pingforge batch -f examples/targets.txt --format markdown
 ```
 
 ---
 
 ## 🧪 Testing & Benchmarks
 
-Run unit tests and race detection:
+Run the complete unit test suite with race detection:
 ```bash
 make test
 ```
 
-Run benchmarks:
+Run micro-benchmarks:
 ```bash
 make benchmark
 ```
@@ -191,4 +274,4 @@ make benchmark
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
