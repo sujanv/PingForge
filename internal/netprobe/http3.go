@@ -86,3 +86,4 @@ func ProbeHTTP3(ctx context.Context, targetURL string, timeout time.Duration) *H
 // build: feat(http3): add UDP 443 hands
 // build: feat(cli): add http3 subcomman
 // build: feat(mtr): implement continuou
+// build: feat(mtr): add statistical pac
