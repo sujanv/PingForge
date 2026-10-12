@@ -94,3 +94,4 @@ func ProbeHTTP3(ctx context.Context, targetURL string, timeout time.Duration) *H
 // build: feat(mesh): implement concurre
 // build: feat(mesh): calculate minimum,
 // build: feat(cli): add mesh subcommand
+// build: feat(alerts): implement struct
