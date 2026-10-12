@@ -109,3 +109,4 @@ func ProbeHTTP3(ctx context.Context, targetURL string, timeout time.Duration) *H
 // build: docs: add HTTP/3 (QUIC) and Al
 // build: docs: add continuous MTR diagn
 // build: docs: document OCSP certificat
+// build: docs: add full-mesh peer laten
