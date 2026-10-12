@@ -155,3 +155,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: docs: update CLI command refer
 // build: perf: optimize worker pool buf
 // build: refactor: streamline CLI comma
+// build: chore: bump version to v3.0.0 
