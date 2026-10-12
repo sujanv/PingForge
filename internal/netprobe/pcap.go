@@ -151,3 +151,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: test: add DNSSEC mock validati
 // build: chore(examples): add PCAP capt
 // build: docs: add detailed usage guide
+// build: docs: add PCAP recording and W
