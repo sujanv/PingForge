@@ -38,5 +38,4 @@ var pcapCmd = &cobra.Command{
 
 func init() {
 	pcapCmd.Flags().IntP("count", "c", 10, "Number of probe packets to capture")
-	RootCmd.AddCommand(pcapCmd)
 }

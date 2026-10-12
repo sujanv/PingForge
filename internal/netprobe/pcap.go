@@ -3,7 +3,6 @@ package netprobe
 import (
 	"encoding/binary"
 	"fmt"
-	"io"
 	"os"
 	"time"
 )

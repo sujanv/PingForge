@@ -99,6 +99,12 @@ func init() {
 	RootCmd.AddCommand(mtuCmd)
 	RootCmd.AddCommand(throughputCmd)
 	RootCmd.AddCommand(liveCmd)
+	RootCmd.AddCommand(geoCmd)
+	RootCmd.AddCommand(bgpCmd)
+	RootCmd.AddCommand(arpCmd)
+	RootCmd.AddCommand(http2Cmd)
+	RootCmd.AddCommand(dnssecCmd)
+	RootCmd.AddCommand(pcapCmd)
 }
 
 // Execute runs the root CLI command.

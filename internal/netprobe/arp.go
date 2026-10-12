@@ -4,12 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"fmt"
 	"net"
 	"os/exec"
 	"runtime"
 	"strings"
-	"time"
 )
 
 // ARPEntry represents local ARP / Neighbor cache record

@@ -3,7 +3,6 @@ package netprobe
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"time"
 )

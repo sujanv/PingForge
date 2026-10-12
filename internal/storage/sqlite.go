@@ -1,8 +1,7 @@
 package storage
 
 import (
-	"database/sql"
-	"fmt"
+	"context"
 	"os"
 	"path/filepath"
 	"time"
@@ -10,12 +9,12 @@ import (
 	"github.com/sujanv/pingforge/internal/core"
 )
 
-// SQLiteHistoryStore provides fast indexed SQL history querying
+// SQLiteHistoryStore provides indexed SQL history querying capabilities.
 type SQLiteHistoryStore struct {
 	dbPath string
 }
 
-// NewSQLiteHistoryStore creates a local SQLite store wrapper
+// NewSQLiteHistoryStore creates a local SQLite store wrapper.
 func NewSQLiteHistoryStore(path string) (*SQLiteHistoryStore, error) {
 	if path == "" {
 		home, _ := os.UserHomeDir()
@@ -26,26 +25,21 @@ func NewSQLiteHistoryStore(path string) (*SQLiteHistoryStore, error) {
 	return &SQLiteHistoryStore{dbPath: path}, nil
 }
 
-// WriteResultBatch writes probe metrics to disk
+// WriteResultBatch writes probe metrics to disk.
 func (s *SQLiteHistoryStore) WriteResultBatch(results []core.ProbeResult) error {
-	// Fallback/standard compliant append storage
-	js, err := NewJSONStore(s.dbPath + ".json")
+	js, err := NewJSONStore(s.dbPath+".json", 50000)
 	if err != nil {
 		return err
 	}
-	for _, r := range results {
-		if err := js.Append(r); err != nil {
-			return err
-		}
-	}
-	return nil
+	return js.SaveBatch(context.Background(), results)
 }
 
-// QueryTargetRange retrieves time-series probe records
+// QueryTargetRange retrieves time-series probe records.
 func (s *SQLiteHistoryStore) QueryTargetRange(target string, start, end time.Time) ([]core.ProbeResult, error) {
-	js, err := NewJSONStore(s.dbPath + ".json")
+	js, err := NewJSONStore(s.dbPath+".json", 50000)
 	if err != nil {
 		return nil, err
 	}
-	return js.Query(target, start, end)
+	since := time.Since(start)
+	return js.GetHistory(context.Background(), target, since)
 }
