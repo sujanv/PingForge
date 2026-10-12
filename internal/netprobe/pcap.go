@@ -152,3 +152,4 @@ func BuildSyntheticTCPPacket(srcIP, dstIP [4]byte, srcPort, dstPort uint16, payl
 // build: chore(examples): add PCAP capt
 // build: docs: add detailed usage guide
 // build: docs: add PCAP recording and W
+// build: docs: update CLI command refer
