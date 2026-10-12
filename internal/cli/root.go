@@ -105,6 +105,10 @@ func init() {
 	RootCmd.AddCommand(http2Cmd)
 	RootCmd.AddCommand(dnssecCmd)
 	RootCmd.AddCommand(pcapCmd)
+	RootCmd.AddCommand(http3Cmd)
+	RootCmd.AddCommand(mtrCmd)
+	RootCmd.AddCommand(ocspCmd)
+	RootCmd.AddCommand(meshCmd)
 }
 
 // Execute runs the root CLI command.
