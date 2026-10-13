@@ -80,7 +80,7 @@ func ProbeBufferbloat(ctx context.Context, targetURL string, host string, port i
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			buf := make([]byte, 32*1024)
+			buf := make([]byte, 64*1024) // 64KB optimized chunk buffer
 			for {
 				select {
 				case <-stopChan:
