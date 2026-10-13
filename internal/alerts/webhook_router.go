@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
-	"github.com/sujanv/pingforge/internal/core"
 )
 
 // WebhookPayload represents rich formatted alert notification

@@ -26,6 +26,10 @@
 | **TLS Security Audit** | `pingforge tls-audit` | Multi-version inspection (TLS 1.0-1.3), cipher suite audit, cert chain hierarchy, ALPN, security grade (A+ to F) |
 | **HTTP/HTTPS Health** | `pingforge health` | Granular phase timing via `httptrace`, regex assertions, HTTP status validation, latency budgets |
 | **HTTP/2 Multiplexing** | `pingforge http2` | RFC 7540 HTTP/2 probe, stream header analysis, ALPN verification, multiplex latency |
+| **HTTP/3 & QUIC Probe** | `pingforge http3` | RFC 9114 HTTP/3 probe, Alt-Svc advertisement verification, UDP 443 handshake RTT |
+| **Continuous MTR Trace** | `pingforge mtr`   | Multi-cycle traceroute engine, statistical hop-by-hop packet loss, jitter standard deviation |
+| **OCSP Stapling Audit** | `pingforge ocsp`  | RFC 6066 OCSP response verification, certificate revocation inspection, CRL distributions |
+| **Full-Mesh Latency**   | `pingforge mesh`  | Concurrent $N \times N$ peer latency mesh builder for multi-datacenter network profiling |
 | **WebSocket Probe** | `pingforge ws` | RFC 6455 HTTP upgrade handshake timing, Ping/Pong frame RTT, subprotocol validation |
 | **DNSSEC Validation** | `pingforge dnssec` | Cryptographic signature verification, Authenticated Data (AD), RRSIG, DNSKEY, DS records |
 | **IP Geolocation & ASN**| `pingforge geo` | IP Geolocation, ASN, organization, coordinates, timezone, and network intelligence |
@@ -300,6 +304,46 @@ pingforge pcap trace.pcap -c 25
 
 # Inspect captured packets in Wireshark
 wireshark trace.pcap
+```
+
+### 21. HTTP/3 (QUIC) Capability & Alt-Svc Audit (`pingforge http3`)
+Verify RFC 9114 HTTP/3 protocol support, Alt-Svc advertisement headers, and UDP 443 handshake RTT:
+```bash
+# Audit HTTP/3 support on endpoint
+pingforge http3 https://www.google.com
+
+# Inspect draft protocol version and Alt-Svc headers
+pingforge http3 https://cloudflare.com --json
+```
+
+### 22. Continuous MTR Diagnostics (`pingforge mtr`)
+Execute multi-cycle traceroutes measuring hop-by-hop packet loss, average latency, and jitter standard deviation:
+```bash
+# Run 5 traceroute cycles to target host
+pingforge mtr 1.1.1.1 --cycles 5
+
+# Trace path to specific TCP port
+pingforge mtr github.com -p 443 --cycles 3
+```
+
+### 23. SSL/TLS OCSP Stapling & Revocation (`pingforge ocsp`)
+Inspect RFC 6066 Online Certificate Status Protocol (OCSP) stapled responses and CRL distribution points:
+```bash
+# Verify OCSP stapling on HTTPS endpoint
+pingforge ocsp google.com
+
+# Audit custom port
+pingforge ocsp mydomain.com -p 8443
+```
+
+### 24. Full-Mesh Peer Latency Matrix (`pingforge mesh`)
+Run concurrent pairwise latency diagnostics across multi-node peer networks to identify routing asymmetries:
+```bash
+# Profile full-mesh latency between nodes
+pingforge mesh 10.0.0.1,10.0.0.2,10.0.0.3
+
+# Output mesh matrix as JSON
+pingforge mesh node1.internal,node2.internal,node3.internal --json
 ```
 
 ---

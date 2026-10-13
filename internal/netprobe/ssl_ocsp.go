@@ -3,10 +3,8 @@ package netprobe
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"net"
-	"net/http"
 	"time"
 )
 
