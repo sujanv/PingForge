@@ -109,6 +109,13 @@ func init() {
 	RootCmd.AddCommand(mtrCmd)
 	RootCmd.AddCommand(ocspCmd)
 	RootCmd.AddCommand(meshCmd)
+	RootCmd.AddCommand(ntpCmd)
+	RootCmd.AddCommand(bufferbloatCmd)
+	RootCmd.AddCommand(whoisCmd)
+	RootCmd.AddCommand(snmpCmd)
+	RootCmd.AddCommand(dualstackCmd)
+	RootCmd.AddCommand(certCheckCmd)
+	RootCmd.AddCommand(mdnsCmd)
 }
 
 // Execute runs the root CLI command.
