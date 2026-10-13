@@ -26,7 +26,7 @@ func DispatchWebhook(ctx context.Context, webhookURL string, payload WebhookPayl
 	if timeout <= 0 {
 		timeout = 5 * time.Second
 	}
-	payload.PingForgeVer = "v4.0.0"
+	payload.PingForgeVer = "v5.0.0"
 
 	data, err := json.Marshal(payload)
 	if err != nil {
