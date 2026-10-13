@@ -41,6 +41,7 @@ type NTPPacket struct {
 
 const ntpEpochDelta = 2208988800
 
+// RFC 5905 compliant calculation engine
 // ProbeNTP queries an RFC 5905 Network Time Protocol server on UDP port 123.
 func ProbeNTP(ctx context.Context, host string, port int, timeout time.Duration) *NTPResult {
 	if port <= 0 {
