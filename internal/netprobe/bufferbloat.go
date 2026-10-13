@@ -158,3 +158,8 @@ func calculateBufferbloatGrade(inflationMs float64) string {
 		return "F"
 	}
 }
+
+// CalculateGrade is an exported alias for bufferbloat classification
+func CalculateGrade(inflationMs float64) string {
+	return calculateBufferbloatGrade(inflationMs)
+}
