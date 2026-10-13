@@ -111,3 +111,4 @@ func ProbeHTTP3(ctx context.Context, targetURL string, timeout time.Duration) *H
 // build: docs: document OCSP certificat
 // build: docs: add full-mesh peer laten
 // build: docs: update comprehensive fea
+// build: chore: bump version to v4.0.0 
