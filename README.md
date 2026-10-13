@@ -79,7 +79,18 @@
     │  TLS & WebSockets   │
     │  Handshake, Ciphers,│
     │  Ping/Pong Frames   │
-    └─────────────────────┘
+    └──────────┬──────────┘
+               │
+    ┌──────────┴──────────────────────────┐
+    │  v5 Advanced Telemetry Engines      │
+    │  • NTP (RFC 5905) Stratum / Jitter  │
+    │  • Bufferbloat Latency Inflation    │
+    │  • SNMP v2c MIB-II Network Walker   │
+    │  • Dual-Stack (RFC 8305) Comparator │
+    │  • Bulk TLS Expiry & Alert Monitor  │
+    │  • Multicast DNS (mDNS) ZeroConf    │
+    │  • InfluxDB & OTLP Metric Exporters │
+    └─────────────────────────────────────┘
 ```
 
 ---
