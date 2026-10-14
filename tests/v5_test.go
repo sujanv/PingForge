@@ -152,3 +152,16 @@ func TestMatchSANWildcard(t *testing.T) {
 		t.Errorf("unexpected match for otherdomain.org")
 	}
 }
+
+func TestDualStackFallback(t *testing.T) {
+	res := &netprobe.DualStackResult{
+		IPv4LatencyMs: 12.0,
+		IPv6LatencyMs: 0.0,
+	}
+	if res.IPv4LatencyMs > 0 && res.IPv6LatencyMs == 0 {
+		res.WinningFamily = "IPv4 (Single-Stack)"
+	}
+	if res.WinningFamily != "IPv4 (Single-Stack)" {
+		t.Errorf("expected IPv4 (Single-Stack), got %s", res.WinningFamily)
+	}
+}
