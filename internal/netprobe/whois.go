@@ -47,7 +47,8 @@ func QueryWHOIS(ctx context.Context, target string, timeout time.Duration) *WHOI
 		}
 	}
 
-	d := net.Dialer{Timeout: timeout}
+	// Establish dialer with explicit timeout and TCP keep-alive
+	d := net.Dialer{Timeout: timeout, KeepAlive: 30 * time.Second}
 	conn, err := d.DialContext(ctx, "tcp", whoisServer)
 	if err != nil {
 		// Fallback to RDAP
