@@ -87,3 +87,18 @@ func AuditCertExpiry(ctx context.Context, host string, port int, timeout time.Du
 
 	return summary
 }
+
+// MatchSAN checks if any certificate SAN matches the expected domain name
+func MatchSAN(domain string, sans []string) bool {
+	for _, san := range sans {
+		if san == domain {
+			return true
+		}
+		if len(san) > 2 && san[:2] == "*." {
+			if len(domain) >= len(san)-2 && domain[len(domain)-len(san)+2:] == san[2:] {
+				return true
+			}
+		}
+	}
+	return false
+}
