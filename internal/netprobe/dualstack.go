@@ -87,6 +87,13 @@ func ProbeDualStack(ctx context.Context, domain string, port int, timeout time.D
 
 	wg.Wait()
 
+	// Single-stack protocol winner fallback
+	if res.IPv4LatencyMs == 0 && res.IPv6LatencyMs > 0 {
+		res.WinningFamily = "IPv6 (Single-Stack)"
+	} else if res.IPv6LatencyMs == 0 && res.IPv4LatencyMs > 0 {
+		res.WinningFamily = "IPv4 (Single-Stack)"
+	}
+
 	if res.IPv6LatencyMs > 0 && (res.IPv4LatencyMs == 0 || res.IPv6LatencyMs <= res.IPv4LatencyMs+50.0) {
 		res.WinningFamily = "IPv6"
 		res.HappyEyeballsWinMs = res.IPv4LatencyMs - res.IPv6LatencyMs
