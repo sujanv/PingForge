@@ -471,6 +471,20 @@ make benchmark
 
 ---
 
+
+---
+
+## ❓ Troubleshooting & FAQs
+
+### Why does `pingforge bufferbloat` require an HTTP endpoint?
+Bufferbloat measures latency degradation under saturated network throughput. PingForge streams concurrent payloads to an HTTP/HTTPS endpoint to artificially fill network router queues, continuously probing TCP latency in parallel to compute buffer inflation.
+
+### Can `pingforge snmp` query Cisco, Juniper, and Arista switches?
+Yes! PingForge implements standard RFC 1157 / RFC 1901 SNMP v2c GetRequest PDUs using BER encoding. It works out-of-the-box with any network appliance exposing standard MIB-II system OIDs (`1.3.6.1.2.1.1.x`).
+
+### How does `pingforge dualstack` implement Happy Eyeballs RFC 8305?
+It fires concurrent connection requests to both IPv4 (`A`) and IPv6 (`AAAA`) addresses of the target domain. An optional connection headstart (default: 50ms) is granted to IPv6 to prioritize next-generation networking without penalizing user experience if IPv6 routing is impaired.
+
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
