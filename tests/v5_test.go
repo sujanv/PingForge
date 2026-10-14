@@ -133,3 +133,12 @@ func TestFormatOTLPMetricsJSON(t *testing.T) {
 		t.Errorf("expected valid OTLP JSON data")
 	}
 }
+
+func TestSNMPOIDConstants(t *testing.T) {
+	if netprobe.OIDSysContact != "1.3.6.1.2.1.1.4.0" {
+		t.Errorf("expected sysContact OID, got %s", netprobe.OIDSysContact)
+	}
+	if netprobe.OIDSysLocation != "1.3.6.1.2.1.1.6.0" {
+		t.Errorf("expected sysLocation OID, got %s", netprobe.OIDSysLocation)
+	}
+}
