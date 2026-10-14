@@ -142,3 +142,13 @@ func TestSNMPOIDConstants(t *testing.T) {
 		t.Errorf("expected sysLocation OID, got %s", netprobe.OIDSysLocation)
 	}
 }
+
+func TestMatchSANWildcard(t *testing.T) {
+	sans := []string{"*.example.com", "api.example.com"}
+	if !netprobe.MatchSAN("test.example.com", sans) {
+		t.Errorf("expected wildcard match for test.example.com")
+	}
+	if netprobe.MatchSAN("otherdomain.org", sans) {
+		t.Errorf("unexpected match for otherdomain.org")
+	}
+}
