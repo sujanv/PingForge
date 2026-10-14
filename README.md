@@ -30,6 +30,14 @@
 | **Continuous MTR Trace** | `pingforge mtr`   | Multi-cycle traceroute engine, statistical hop-by-hop packet loss, jitter standard deviation |
 | **OCSP Stapling Audit** | `pingforge ocsp`  | RFC 6066 OCSP response verification, certificate revocation inspection, CRL distributions |
 | **Full-Mesh Latency**   | `pingforge mesh`  | Concurrent $N \times N$ peer latency mesh builder for multi-datacenter network profiling |
+| **NTP Time Sync**       | `pingforge ntp`   | RFC 5905 Network Time Protocol, stratum, clock offset, round-trip delay, and server dispersion |
+| **Bufferbloat & Loaded Latency** | `pingforge bufferbloat` | Baseline vs concurrent loaded latency inflation, bufferbloat grading (A+ to F) |
+| **WHOIS & RDAP Resolver**| `pingforge whois` | RFC 3912 TCP port 43 WHOIS queries, RDAP REST JSON fallback, registrar and expiry discovery |
+| **SNMP v2c Device Walk**| `pingforge snmp`  | Lightweight BER ASN.1 encoder, MIB-II system status (sysDescr, sysUpTime, sysName) |
+| **Dual-Stack Happy Eyeballs** | `pingforge dualstack` | Concurrent RFC 8305 IPv4 vs IPv6 race, latency delta comparator, protocol winner detection |
+| **Bulk TLS Expiry Auditor** | `pingforge cert-check` | Batch SSL/TLS certificate validity scanner, expiration warnings, CRITICAL/WARNING/OK alerting |
+| **mDNS Service Discovery** | `pingforge mdns` | Multicast DNS ZeroConf discovery on 224.0.0.251:5353, local LAN hostnames and services |
+| **OpenTelemetry & InfluxDB** | `pingforge report` | RFC-compliant OpenTelemetry JSON Metrics & InfluxDB 2.x Line Protocol exporters |
 | **WebSocket Probe** | `pingforge ws` | RFC 6455 HTTP upgrade handshake timing, Ping/Pong frame RTT, subprotocol validation |
 | **DNSSEC Validation** | `pingforge dnssec` | Cryptographic signature verification, Authenticated Data (AD), RRSIG, DNSKEY, DS records |
 | **IP Geolocation & ASN**| `pingforge geo` | IP Geolocation, ASN, organization, coordinates, timezone, and network intelligence |
@@ -355,6 +363,76 @@ pingforge mesh 10.0.0.1,10.0.0.2,10.0.0.3
 
 # Output mesh matrix as JSON
 pingforge mesh node1.internal,node2.internal,node3.internal --json
+```
+
+### 25. RFC 5905 Network Time Protocol (NTP) Diagnostics (`pingforge ntp`)
+Query Stratum-1 and public NTP servers (pool.ntp.org, time.google.com, time.cloudflare.com) to measure clock offset, round-trip delay, and stratum dispersion:
+```bash
+# Query default NTP pool
+pingforge ntp pool.ntp.org
+
+# Query specific server with custom timeout and port
+pingforge ntp time.google.com -p 123 -t 3s --json
+```
+
+### 26. Bufferbloat & Loaded Latency Grading (`pingforge bufferbloat`)
+Measure latency inflation and packet buffering under heavy sustained download saturation, grading network buffer health from A+ to F:
+```bash
+# Run 10-second bufferbloat benchmark against HTTP target
+pingforge bufferbloat http://speedtest.tele2.net/10MB.zip -d 10s
+
+# Inspect loaded latency delta and bufferbloat grade
+pingforge bufferbloat https://proof.ovh.net/files/10Mb.dat --concurrency 8 --json
+```
+
+### 27. RFC 3912 TCP WHOIS & RDAP Domain Auditing (`pingforge whois`)
+Perform high-speed raw TCP WHOIS lookups on port 43 with automated fallback to ICANN Registration Data Access Protocol (RDAP) JSON APIs:
+```bash
+# Query domain WHOIS registration
+pingforge whois github.com
+
+# Query Autonomous System Number (ASN) details
+pingforge whois AS15169 --json
+```
+
+### 28. SNMP v2c Network Equipment Telemetry (`pingforge snmp`)
+Query network switches, routers, and edge firewalls via lightweight BER-encoded SNMP v2c UDP probes to extract MIB-II system description, uptime, and identity:
+```bash
+# Query local SNMP agent with default 'public' community
+pingforge snmp 192.168.1.1 -c public
+
+# Query specific OID on custom port
+pingforge snmp router.lan:161 -c secret -o 1.3.6.1.2.1.1.1.0 --json
+```
+
+### 29. RFC 8305 Dual-Stack Happy Eyeballs Race (`pingforge dualstack`)
+Execute simultaneous IPv4 (A) and IPv6 (AAAA) connection races with configurable connection head starts to diagnose IPv6 routing penalties and protocol preference:
+```bash
+# Compare IPv4 vs IPv6 connection latency
+pingforge dualstack google.com -p 443
+
+# Output detailed dual-stack delta and winning protocol
+pingforge dualstack cloudflare.com -p 80 --json
+```
+
+### 30. Bulk TLS Certificate Expiration Auditor (`pingforge cert-check`)
+Audit batches of HTTPS endpoints and internal services for upcoming TLS certificate expiration, classifying risk levels as CRITICAL, WARNING, or OK:
+```bash
+# Check single target with 30-day warning threshold
+pingforge cert-check github.com:443 --days 30
+
+# Bulk audit targets from list
+pingforge cert-check -f examples/targets.txt --days 14 --json
+```
+
+### 31. Multicast DNS (mDNS) ZeroConf Discovery (`pingforge mdns`)
+Send UDP multicast queries across the local LAN on `224.0.0.251:5353` to discover ZeroConf services, Apple Bonjour devices, and local printers:
+```bash
+# Discover local workstation services
+pingforge mdns _workstation._tcp.local.
+
+# Discover local HTTP/HTTPS services
+pingforge mdns _http._tcp.local. -t 3s --json
 ```
 
 ---
