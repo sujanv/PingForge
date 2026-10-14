@@ -31,5 +31,7 @@ func init() {
 	snmpCmd.Flags().IntP("port", "p", 161, "SNMP UDP port")
 	snmpCmd.Flags().StringP("community", "c", "public", "SNMP community string")
 	snmpCmd.Flags().StringP("oid", "o", "1.3.6.1.2.1.1.1.0", "Target MIB-II Object Identifier (OID)")
+	snmpCmd.Flags().Bool("contact", false, "Query sysContact (1.3.6.1.2.1.1.4.0)")
+	snmpCmd.Flags().Bool("location", false, "Query sysLocation (1.3.6.1.2.1.1.6.0)")
 	snmpCmd.Flags().Duration("timeout", 3*time.Second, "SNMP response timeout")
 }
