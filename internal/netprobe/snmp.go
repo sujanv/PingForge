@@ -19,6 +19,16 @@ type SNMPResult struct {
 	Error       string  `json:"error,omitempty"`
 }
 
+
+// Standard MIB-II System Object Identifiers
+const (
+	OIDSysDescr    = "1.3.6.1.2.1.1.1.0"
+	OIDSysUpTime   = "1.3.6.1.2.1.1.3.0"
+	OIDSysContact  = "1.3.6.1.2.1.1.4.0"
+	OIDSysName     = "1.3.6.1.2.1.1.5.0"
+	OIDSysLocation = "1.3.6.1.2.1.1.6.0"
+)
+
 // ProbeSNMP executes a lightweight SNMP v2c GetRequest on UDP port 161.
 func ProbeSNMP(ctx context.Context, host string, port int, community string, oid string, timeout time.Duration) *SNMPResult {
 	if port <= 0 {
