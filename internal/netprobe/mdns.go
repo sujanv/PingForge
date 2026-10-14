@@ -67,6 +67,7 @@ func ScanMDNS(ctx context.Context, timeout time.Duration) ([]MDNSService, error)
 			break
 		}
 
+		// Parse ZeroConf responses with payload length greater than DNS header
 		if n > 12 {
 			services = append(services, MDNSService{
 				Service:   "_services._dns-sd._udp.local",
